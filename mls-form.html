@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>MLS Listing Walkthrough | J.R. Grimaldo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue: #1B4F72;
+  --blue-light: #2E86C1;
+  --blue-pale: #D6EAF8;
+  --gold: #D4A03C;
+  --dark: #1A1A2E;
+  --gray: #6B7280;
+  --gray-light: #E5E7EB;
+  --gray-bg: #F3F4F6;
+  --white: #FFFFFF;
+  --cream: #FAFBF5;
+  --success: #059669;
+  --success-bg: #D1FAE5;
+  --error: #DC2626;
+  --radius: 10px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Inter', sans-serif; background: var(--gray-bg); color: var(--dark); min-height: 100vh; padding-bottom: 80px; }
+.app-header { background: var(--blue); color: var(--white); padding: 14px 16px 12px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+.app-header h1 { font-size: 16px; font-weight: 700; }
+.app-header .subtitle { font-size: 11px; opacity: 0.7; margin-top: 2px; }
+.progress-bar { background: rgba(255,255,255,0.15); height: 4px; border-radius: 2px; margin-top: 10px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.4s ease; }
+.step-tabs { display: flex; overflow-x: auto; background: var(--white); border-bottom: 1px solid var(--gray-light); padding: 0 8px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.step-tabs::-webkit-scrollbar { display: none; }
+.step-tab { flex-shrink: 0; padding: 10px 14px; font-size: 12px; font-weight: 500; color: var(--gray); border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+.step-tab.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+.content { padding: 16px; max-width: 720px; margin: 0 auto; }
+.step-panel { display: none; }
+.step-panel.active { display: block; animation: fadeIn 0.25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.section-card { background: var(--white); border-radius: var(--radius); padding: 18px 16px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.section-card h3 { font-size: 14px; font-weight: 700; color: var(--blue); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+.field-group { margin-bottom: 16px; }
+.field-group:last-child { margin-bottom: 0; }
+.field-label { display: block; font-size: 12px; font-weight: 600; color: var(--gray); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+.field-label .req { color: var(--error); }
+.text-input { width: 100%; padding: 12px 14px; border: 2px solid var(--gray-light); border-radius: 8px; font-size: 15px; font-family: 'Inter', sans-serif; color: var(--dark); background: var(--white); transition: border-color 0.2s; -webkit-appearance: none; }
+.text-input:focus { outline: none; border-color: var(--blue-light); }
+.text-input::placeholder { color: #B0B8C4; }
+.text-input.prefilled { background: #F0F7FF; border-color: var(--blue-pale); }
+.inline-fields { display: flex; gap: 10px; }
+.inline-fields .field-group { flex: 1; }
+.select-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.select-btn { padding: 8px 12px; border: 2px solid var(--gray-light); border-radius: 8px; background: var(--white); font-size: 13px; font-weight: 500; color: var(--dark); cursor: pointer; transition: all 0.15s; user-select: none; -webkit-user-select: none; }
+.select-btn:active { transform: scale(0.97); }
+.select-btn.selected { background: var(--blue); color: var(--white); border-color: var(--blue); }
+.chip-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { padding: 7px 11px; border: 1.5px solid var(--gray-light); border-radius: 20px; background: var(--white); font-size: 12px; font-weight: 500; color: var(--dark); cursor: pointer; transition: all 0.15s; user-select: none; -webkit-user-select: none; }
+.chip:active { transform: scale(0.97); }
+.chip.selected { background: var(--blue-pale); color: var(--blue); border-color: var(--blue-light); }
+.yn-toggle { display: flex; gap: 8px; }
+.yn-btn { flex: 1; padding: 10px; text-align: center; border: 2px solid var(--gray-light); border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; background: var(--white); transition: all 0.15s; }
+.yn-btn:active { transform: scale(0.97); }
+.yn-btn.selected-yes { background: var(--success-bg); color: var(--success); border-color: var(--success); }
+.yn-btn.selected-no { background: #FEE2E2; color: var(--error); border-color: var(--error); }
+.room-row { display: grid; grid-template-columns: 100px 50px 1fr 80px; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--gray-light); }
+.room-row:last-child { border-bottom: none; }
+.room-name { font-size: 13px; font-weight: 600; color: var(--dark); }
+.room-yn { width: 44px; height: 34px; border: 2px solid var(--gray-light); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; cursor: pointer; background: var(--white); }
+.room-yn.yes { background: var(--success-bg); color: var(--success); border-color: var(--success); }
+.room-input { padding: 8px 10px; border: 1.5px solid var(--gray-light); border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif; width: 100%; -webkit-appearance: none; }
+.room-input:focus { outline: none; border-color: var(--blue-light); }
+.text-area { width: 100%; min-height: 100px; padding: 12px 14px; border: 2px solid var(--gray-light); border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif; color: var(--dark); resize: vertical; -webkit-appearance: none; }
+.text-area:focus { outline: none; border-color: var(--blue-light); }
+.char-count { text-align: right; font-size: 11px; color: var(--gray); margin-top: 4px; }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); border-top: 1px solid var(--gray-light); padding: 12px 16px; display: flex; gap: 10px; z-index: 100; max-width: 720px; margin: 0 auto; }
+.nav-btn { flex: 1; padding: 13px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.15s; }
+.nav-btn:active { transform: scale(0.98); }
+.nav-btn.prev { background: var(--gray-light); color: var(--dark); }
+.nav-btn.next { background: var(--blue); color: var(--white); }
+.nav-btn.summary-btn { background: var(--gold); color: var(--white); }
+/* Summary */
+.summary-section { background: var(--white); border-radius: var(--radius); margin-bottom: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.summary-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: var(--blue); color: var(--white); }
+.summary-header h4 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.copy-btn { padding: 6px 14px; background: rgba(255,255,255,0.2); color: var(--white); border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+.copy-btn:active { background: rgba(255,255,255,0.4); }
+.copy-btn.copied { background: var(--success); border-color: var(--success); }
+.summary-body { padding: 14px 16px; }
+.summary-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #F3F4F6; font-size: 13px; cursor: pointer; transition: background 0.15s; }
+.summary-row:active { background: var(--blue-pale); }
+.summary-row:last-child { border-bottom: none; }
+.summary-key { color: var(--gray); font-weight: 500; flex-shrink: 0; margin-right: 10px; }
+.summary-val { color: var(--dark); font-weight: 600; text-align: right; max-width: 60%; word-break: break-word; }
+.summary-row .copy-hint { font-size: 10px; color: var(--blue-light); margin-left: 6px; opacity: 0.6; flex-shrink: 0; }
+.summary-row.just-copied { background: var(--success-bg); }
+.summary-row.just-copied .summary-val { color: var(--success); }
+/* Action buttons in summary */
+.action-btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer; margin-bottom: 10px; transition: all 0.15s; }
+.action-btn:active { transform: scale(0.98); }
+.action-btn.gold { background: var(--gold); color: var(--white); }
+.action-btn.blue { background: var(--blue); color: var(--white); }
+.action-btn.outline { background: var(--white); color: var(--blue); border: 2px solid var(--blue); }
+.action-btn.danger { background: rgba(255,255,255,0.15); color: var(--white); border: 1px solid rgba(255,255,255,0.3); font-size: 12px; padding: 10px; }
+/* Toast */
+.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--dark); color: var(--white); padding: 12px 22px; border-radius: 10px; font-size: 13px; font-weight: 600; box-shadow: 0 6px 24px rgba(0,0,0,0.2); z-index: 200; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.conditional { display: none; padding-left: 12px; border-left: 3px solid var(--blue-pale); margin-top: 10px; }
+.conditional.visible { display: block; }
+.level-select { padding: 8px; border: 1.5px solid var(--gray-light); border-radius: 6px; font-size: 12px; font-family: 'Inter', sans-serif; background: var(--white); -webkit-appearance: auto; }
+@media (max-width: 380px) {
+  .select-btn { padding: 7px 9px; font-size: 12px; }
+  .chip { padding: 6px 9px; font-size: 11px; }
+  .room-row { grid-template-columns: 80px 44px 1fr 70px; gap: 6px; }
+}
+</style>
+</head>
+<body>
+<div class="app-header">
+  <h1>MLS Listing Walkthrough</h1>
+  <div class="subtitle">Greenville MLS — Paragon Entry</div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:7%"></div></div>
+</div>
+<div class="step-tabs" id="stepTabs"></div>
+<div class="content" id="content"></div>
+<div class="bottom-nav">
+  <button class="nav-btn prev" id="prevBtn" onclick="prevStep()">← Back</button>
+  <button class="nav-btn next" id="nextBtn" onclick="nextStep()">Next →</button>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+// ═══════════════════════════════════════════
+// DATA STORE
+// ═══════════════════════════════════════════
+const formData = {};
+function setVal(key, val) { formData[key] = val; saveToLocal(); }
+function getVal(key) { return formData[key] || ''; }
+function toggleMulti(key, val) {
+  if (!formData[key]) formData[key] = [];
+  const idx = formData[key].indexOf(val);
+  if (idx > -1) formData[key].splice(idx, 1);
+  else formData[key].push(val);
+  saveToLocal();
+}
+function hasMulti(key, val) { return (formData[key] || []).includes(val); }
+function saveToLocal() { try { localStorage.setItem('mls_walkthrough', JSON.stringify(formData)); } catch(e) {} }
+function loadFromLocal() {
+  try {
+    const saved = localStorage.getItem('mls_walkthrough');
+    if (saved) Object.assign(formData, JSON.parse(saved));
+  } catch(e) {}
+  // Also check URL for shared data
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const shared = params.get('d');
+    if (shared) {
+      const decoded = JSON.parse(decodeURIComponent(atob(shared)));
+      Object.assign(formData, decoded);
+      saveToLocal();
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  } catch(e) {}
+}
+loadFromLocal();
+
+// ═══════════════════════════════════════════
+// MIGRATION: Convert old labels to Paragon codes
+// ═══════════════════════════════════════════
+const MIGRATION_MAP = {
+  // Style
+  'Bungalow':'AA1 - Bungalow','Cape Cod':'AA2 - Cape Cod','Charleston':'AA3 - Charleston','Colonial':'AA4 - Colonial',
+  'Contemporary':'AA5 - Contemporary','Craftsman':'AA6 - Craftsman','Duplex Style':'AA7 - Duplex Style','European':'AA8 - European',
+  'Log':'AA9 - Log','Mixed Use':'AA10 - Mixed Use','Patio':'AA13 - Patio','Ranch':'AA14 - Ranch','Salt Box':'AA15 - Salt Box',
+  'Southwestern':'AA16 - Southwestern','Split Foyer':'AA17 - Split Foyer','Traditional':'AA18 - Traditional',
+  'Tri/Split Level':'AA19 - Tri/Split Level','Tudor':'AA20 - Tudor','Victorian':'AA21 - Victorian',
+  'Other / See Remarks':'AA22 - Other/See Remarks','Mobile - Single Wide':'AA23 - Mobile Home – Single Wide',
+  'Mobile - Double Wide':'AA24 - Mobile Home – Double Wide','Transitional':'AA25 - Transitional',
+  'Historical (Docs Req.)':'AA26 - Historical (Docs Req.)','Condo Ground Level':'AA27 - Condo Ground Level',
+  'Condo Upper Level':'AA28 - Condo Upper Level','Country':'AA29 - Country','Georgian':'AA30 - Georgian',
+  'Modular':'AA31 - Modular','Provincial':'AA32 - Providential','Rustic':'AA33 - Rustic','Williamsburg':'AA34 - Williamsburg',
+  'Mobile - No Foundation':'AA11 - Mobile-No Foundation','Mobile - Permanent Foundation':'AA12 - Mobile-Perm. Foundation',
+  // Exterior Finish
+  'Aluminum Siding':'BA1 - Aluminum Siding','Asbestos Shingle':'BA2 - Asbestos Shingle','Block':'BA3 - Block',
+  'Brick Veneer - Full':'BA4 - Brick Veneer-Full','Brick Veneer - Partial':'BA5 - Brick Veneer-Partial',
+  'Concrete Plank':'BA6 - Concrete Plank','Hardboard Siding':'BA7 - Hardboard Siding','Masonry Stucco':'BA8 - Masonry Stucco',
+  'Stone':'BA9 - Stone','Synthetic Stucco':'BA10 - Synthetic Stucco','Vinyl Siding':'BA11 - Vinyl Siding',
+  'Wood':'BA12 - Wood','Masonite Siding':'BA14 - Masonite Siding',
+  // Lot
+  'Corner':'CA1 - Corner','Creek':'CA2 - Creek','Cul-de-Sac':'CA3 - Cul-de-Sac','Deeded Boat Slip':'CA4 - Deeded Boat Slip',
+  'Dock':'CA5 - Dock','Fenced Yard':'CA6 - Fenced Yard','Lake':'CA7 - Lake','Level':'CA8 - Level',
+  'Mountain View':'CA9 - Mountain View','Mountain':'CA10 - Mountain','On Golf Course':'CA11 - On Golf Course',
+  'Pasture':'CA12 - Pasture','Pond':'CA13 - Pond','River':'CA14 - River','Sidewalk':'CA15 - Sidewalk',
+  'Sloped':'CA16 - Sloped','Some Trees':'CA17 - Some Trees','Steep':'CA18 - Steep',
+  'Underground Utilities':'CA19 - Underground Utilities','Water Access':'CA20 - Water Access',
+  'Water Front':'CA21 - Water Front','Water View':'CA22 - Water View','Wooded':'CA23 - Wooded','Leased Lot':'CA24 - Leased Lot',
+  // Foundation
+  'Basement':'DA1 - Basement','Crawl Space':'DA2 - Crawl Space','Crawl Space/Slab':'DA3 - Crawl Space/Slab',
+  'Slab':'DA4 - Slab','Sump Pump':'DA5 - Sump Pump','Dehumidifier':'DA6 - Dehumidifier',
+  // Basement
+  'Full Finished':'EA1 - Full Finished','Partial Finished':'EA2 - Partial Finished','Full':'EA3 - Full',
+  'Partial':'EA4 - Partial','Stubbed':'EA5 - Stubbed','Unfinished':'EA7 - Unfinished',
+  'Unfinished HVAC':'EA8 - Unfinished HVAC','Walkout':'EA9 - Walkout','Interior Access':'EA11 - Interior Access',
+  'None':'EA12 - None',
+  // Exterior Features
+  'Balcony':'FA1 - Balcony','Barn/Stall':'FA2 - Barn/Stall','Deck':'FA3 - Deck','Elevator':'FA4 - Elevator',
+  'Generator':'FA5 - Generator','Disability Access':'FA6 - Disability Access','Hot Tub':'FA7 - Hot Tub',
+  'Outdoor Fireplace':'FA8 - Outdoor Fireplace','Outdoor Kitchen':'FA9 - Outdoor Kitchen','Patio':'FA10 - Patio',
+  'Pool - Above Ground':'FA11 - Pool-Above Ground','Pool House':'FA12 - Pool House','Pool - In Ground':'FA13 - Pool-In Ground',
+  'Porch - Enclosed':'FA14 - Porch-Enclosed','Porch - Front':'FA15 - Porch-Front','Porch - Screened':'FA16 - Porch-Screened',
+  'Porch - Other':'FA17 - Porch-Other','Porch - Wrap Around':'FA18 - Porch-Wrap Around','Riding Area':'FA19 - Riding Area',
+  'Satellite Dish':'FA20 - Satellite Dish','Some Storm Doors':'FA23 - Some Storm Doors',
+  'Some Storm Windows':'FA24 - Some Storm Windows','Tilt Out Windows':'FA25 - Tilt Out Windows',
+  'Vinyl/Aluminum Trim':'FA26 - Vinyl/Aluminum Trim','Windows - Insulated':'FA27 - Windows-Insulated',
+  'Outdoor Grill':'FA29 - Outdoor Grill','Porch - Covered Back':'FA30 - Porch-Covered Back',
+  'Water Feature':'FA31 - Water Feature','R/V - Boat Parking':'FA32 - R/V-Boat Parking','Greenhouse':'FA33 - Greenhouse',
+  'Solar Panels - Leased':'FA34 - Solar Panels – Leased','Solar Panels - Owned':'FA35 - Solar Panels – Owned',
+  'Under Ground Irrigation':'FA36 - Under Ground Irrigation',
+  // Roof
+  'Architectural':'GA1 - Architectural','Composition Shingle':'GA2 - Composition Shingle','Metal':'GA3 - Metal',
+  'Slate':'GA4 - Slate','Tile':'GA5 - Tile','Wood Shingle':'GA6 - Wood Shingle','Tar / Gravel':'GA8 - Tar/Gravel',
+  // Parking
+  'Assigned Parking 1 Sp':'HA1 - Assigned Parking 1 Sp','Assigned Parking 2 Sp':'HA2 - Assigned Parking 2 Sp',
+  'Attached Garage 1 Car':'HA4 - Attached Garage 1 Car','Attached Garage 2 Cars':'HA5 - Attached Garage 2 Cars',
+  'Attached Garage 3+ Cars':'HA6 - Attached Garage 3+ Cars','Carport 1 Car':'HA8 - Carport 1 Car',
+  'Detached Garage 1 Car':'HA13 - Detached Garage 1 Car','Detached Garage 2 Cars':'HA14 - Detached Garage 2 Cars',
+  'Detached Garage 3+ Cars':'HA15 - Detached Garage 3+ Cars','Door Opener':'HA16 - Door Opener',
+  'Driveway Parking':'HA24 - Driveway Parking','Side/Rear Entry':'HA18 - Side/Rear Entry',
+  'Workshop':'HA20 - Workshop','Yard Door':'HA21 - Yard Door',
+  // Driveway
+  'Circular':'HB1 - Circular','Gravel':'HB2 - Gravel','Easement':'HB3 - Easement','Extra Pad':'HB4 - Extra Pad',
+  'Paved Asphalt':'HB10 - Paved Asphalt','Paved Concrete':'HB11 - Paved Concrete','Shared or Common':'HB6 - Shared or Common',
+  'Specialty':'HB7 - Specialty','Unpaved':'HB8 - Unpaved',
+  // Interior
+  '2 Story Foyer':'IA1 - 2 Story Foyer','2nd Stair Case':'IA2 - 2nd Stair Case',
+  'Attic Stairs - Disappearing':'IA3 - Attic Stairs Disappearing','Attic Stairs - Permanent':'IA4 - Attic Stairs Permanent',
+  'Bookcase':'IA5 - Bookcase','Cable Available':'IA6 - Cable Available','Ceiling Fan':'IA7 - Ceiling Fan',
+  'Ceiling - 9ft+':'IA8 - Ceiling 9ft+','Ceiling - Cathedral/Vaulted':'IA9 - Ceiling Cathedral/Vaulted',
+  'Ceiling - Trey':'IA10 - Ceiling Trey','Ceiling - Blown':'IA11 - Ceiling Blown','Ceiling - Smooth':'IA12 - Ceiling Smooth',
+  'Ceiling - Dropped':'IA13 - Ceiling – Dropped','Ceiling - Coffered':'IA14 - Ceiling – Coffered',
+  'Central Vacuum':'IA15 - Central Vacuum','Countertops - Granite':'IA16 - Countertops Granite',
+  'Countertops - Quartz':'IA17 - Countertops – Quartz','Countertops - Laminate':'IA18 - Countertops – Laminate',
+  'Countertops - Solid Surface':'IA19 - Countertops-Solid Surface','Countertops - Other':'IA20 - Countertops-Other',
+  'Dual Primary Bedrooms':'IA21 - Dual Primary Bedrooms','Gas Dryer Hookup':'IA23 - Gas Dryer Hookup',
+  'Second Living Quarters':'IA25 - Second Living Quarters','Intercom':'IA26 - Intercom',
+  'Multi-Phone Lines':'IA27 - Multi-Phone Lines','Open Floor Plan':'IA28 - Open Floor Plan',
+  'Pantry - Closet':'IA29 - Pantry – Closet','Pantry - Walk-in':'IA30 - Pantry – Walk In',
+  'Pot Filler Faucet':'IA31 - Pot Filler Faucet','Radon System':'IA32 - Radon System','Sauna':'IA33 - Sauna',
+  'Security System - Owned / Conveys':'IA34 - Sec. System-Owned/Conveys','Security System - Leased':'IA35 - Security System Leased',
+  'Sky Lights':'IA36 - Sky Lights','Smart Systems Pre-Wiring':'IA37 - Smart Systems Pre-Wiring',
+  'Smoke Detector':'IA38 - Smoke Detector','Split Floor Plan':'IA40 - Split Floor Plan',
+  'Tub - Jetted':'IA41 - Tub-Jetted','Tub - Garden':'IA42 - Tub Garden','Walk In Closet':'IA43 - Walk In Closet',
+  'Water Purification':'IA45 - Water Purifcation','Wet Bar':'IA44 - Wet Bar','Attic Fan':'IA46 - Attic Fan',
+  'Countertops - Ceramic Tile':'IA47 - Countertops-Ceramic Tile',
+  'Window Trtments/All Remain':'IA48 - Window Trtments-AllRemain','Window Trtments/Some Remain':'IA39 - Window Trmnts-Some Remain',
+  // Flooring
+  'Bamboo':'PA1 - Bamboo','Brick':'PA2 - Brick','Carpet':'PA3 - Carpet','Ceramic Tile':'PA4 - Ceramic Tile',
+  'Concrete':'PA5 - Concrete','Cork':'PA6 - Cork','Hwd/Pine Floor Under Carpet':'PA8 - Hwd/Pine Flr Under Carpet',
+  'Laminate Flooring':'PA9 - Laminate Flooring','Marble':'PA10 - Marble','Parquet':'PA11 - Parquet',
+  'Pine':'PA12 - Pine','Vinyl':'PA15 - Vinyl','Luxury Vinyl Tile/Plank':'PA17 - Luxury Vinyl Tile/Plank',
+  // Appliances
+  'Compactor':'LA1 - Compactor','Dishwasher':'LA6 - Dishwasher','Disposal':'LA7 - Disposal','Double Oven':'LA8 - Double Oven',
+  'Dryer':'LA9 - Dryer','Freezer':'LA10 - Freezer','Refrigerator':'LA20 - Refrigerator','Washer':'LA26 - Washer',
+  'Range Hood':'LA30 - Range Hood','Wood Stove':'LA31 - Wood Stove',
+};
+
+function migrateData() {
+  let changed = false;
+  Object.keys(formData).forEach(key => {
+    const val = formData[key];
+    if (typeof val === 'string' && MIGRATION_MAP[val]) {
+      formData[key] = MIGRATION_MAP[val];
+      changed = true;
+    } else if (Array.isArray(val)) {
+      formData[key] = val.map(v => MIGRATION_MAP[v] || v);
+      if (JSON.stringify(formData[key]) !== JSON.stringify(val)) changed = true;
+    }
+  });
+  if (changed) saveToLocal();
+}
+migrateData();
+
+// ═══════════════════════════════════════════
+// PRE-FILL DEFAULTS
+// ═══════════════════════════════════════════
+const DEFAULTS = {
+  list_agent: 'J.R. Grimaldo',
+  agent_license: '95641',
+  list_office: 'NorthGroup Real Estate',
+  office_license: '23350',
+  listing_type: 'Exclusive Right to Sell'
+};
+Object.keys(DEFAULTS).forEach(k => { if (!formData[k]) { formData[k] = DEFAULTS[k]; } });
+saveToLocal();
+
+// ═══════════════════════════════════════════
+// STEPS
+// ═══════════════════════════════════════════
+const STEPS = [
+  { id:'basics', label:'Basics', icon:'📋' },
+  { id:'listing', label:'Listing', icon:'📝' },
+  { id:'financial', label:'Financial', icon:'💰' },
+  { id:'curb', label:'Curb Appeal', icon:'🏠' },
+  { id:'grounds', label:'Grounds', icon:'🌳' },
+  { id:'parking', label:'Parking', icon:'🚗' },
+  { id:'structure', label:'Structure', icon:'🧱' },
+  { id:'interior', label:'Interior', icon:'🏡' },
+  { id:'rooms', label:'Rooms', icon:'🚪' },
+  { id:'primary', label:'Primary BR', icon:'🛏️' },
+  { id:'kitchen', label:'Kitchen', icon:'🍳' },
+  { id:'specialty', label:'Specialty', icon:'📚' },
+  { id:'systems', label:'Systems', icon:'⚡' },
+  { id:'hoa', label:'HOA', icon:'🏘️' },
+  { id:'docs', label:'Docs', icon:'📄' },
+  { id:'showing', label:'Showing', icon:'🔑' },
+  { id:'remarks', label:'Remarks', icon:'✍️' },
+  { id:'summary', label:'Summary', icon:'📊' }
+];
+let currentStep = 0;
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+function textInput(key, placeholder, type='text') {
+  const val = getVal(key);
+  const pf = DEFAULTS[key] && val === DEFAULTS[key] ? ' prefilled' : '';
+  return `<input class="text-input${pf}" type="${type}" placeholder="${placeholder}" value="${val}" oninput="setVal('${key}', this.value); this.classList.remove('prefilled')" />`;
+}
+function textArea(key, placeholder, maxChars) {
+  const val = getVal(key);
+  return `<textarea class="text-area" placeholder="${placeholder}" oninput="setVal('${key}', this.value); this.nextElementSibling.textContent=this.value.length+'/${maxChars}'" maxlength="${maxChars}">${val}</textarea><div class="char-count">${val.length}/${maxChars}</div>`;
+}
+function singleSelect(key, options) {
+  const current = getVal(key);
+  return `<div class="select-grid">${options.map(o => {
+    const escaped = o.replace(/'/g,"\\'").replace(/–/g,'–');
+    return `<div class="select-btn ${current===o?'selected':''}" onclick="setVal('${key}','${escaped}'); renderCurrentStep()">${o}</div>`;
+  }).join('')}</div>`;
+}
+function multiSelect(key, options) {
+  return `<div class="chip-grid">${options.map(o => {
+    const escaped = o.replace(/'/g,"\\'").replace(/–/g,'–');
+    return `<div class="chip ${hasMulti(key,o)?'selected':''}" onclick="toggleMulti('${key}','${escaped}'); this.classList.toggle('selected')">${o}</div>`;
+  }).join('')}</div>`;
+}
+function ynToggle(key) {
+  const val = getVal(key);
+  return `<div class="yn-toggle">
+    <div class="yn-btn ${val==='Yes'?'selected-yes':''}" onclick="setVal('${key}','Yes'); renderCurrentStep()">Yes</div>
+    <div class="yn-btn ${val==='No'?'selected-no':''}" onclick="setVal('${key}','No'); renderCurrentStep()">No</div>
+  </div>`;
+}
+function fieldGroup(label, content, req=false) {
+  return `<div class="field-group"><label class="field-label">${label} ${req?'<span class="req">*</span>':''}</label>${content}</div>`;
+}
+function conditional(key, val, content) {
+  return `<div class="conditional ${getVal(key)===val?'visible':''}">${content}</div>`;
+}
+
+// ═══════════════════════════════════════════
+// STEP RENDERERS
+// ═══════════════════════════════════════════
+function renderBasics() {
+  return `
+    <div class="section-card"><h3>Property Address</h3>
+      ${fieldGroup('Street Number & Direction', textInput('st_num','123'), true)}
+      ${fieldGroup('Street Name', textInput('st_name','Main'), true)}
+      ${fieldGroup('Street Type', textInput('st_type','Street, Avenue, Circle...'), true)}
+      ${fieldGroup('Address Line 2', textInput('address2','Unit, Apt, etc.'))}
+      ${fieldGroup('Subdivision', textInput('subdivision',''), true)}
+      <div class="inline-fields">${fieldGroup('City', textInput('city',''), true)}${fieldGroup('State', textInput('state','SC'), true)}</div>
+      <div class="inline-fields">${fieldGroup('Zip Code', textInput('zip',''), true)}${fieldGroup('County', textInput('county',''), true)}</div>
+      ${fieldGroup('In City?', ynToggle('in_city'), true)}
+    </div>
+    <div class="section-card"><h3>Property Type</h3>
+      ${fieldGroup('Type', singleSelect('type',['Single Family','Condo','Townhouse','Mobile Home','Modular','Mixed Use']), true)}
+      ${fieldGroup('Area', textInput('area','MLS Area Code'), true)}
+      ${fieldGroup('List Price', textInput('price','','text'), true)}
+    </div>
+    <div class="section-card"><h3>Internet Display</h3>
+      ${fieldGroup('IDX Include', singleSelect('idx',['Yes','No','Yes - without Address']), true)}
+      ${fieldGroup('On Internet', singleSelect('on_internet',['Yes','No','Yes - without Address']), true)}
+      <div class="inline-fields">${fieldGroup('VOW Include', singleSelect('vow_include',['Yes','No']), true)}${fieldGroup('VOW Address', singleSelect('vow_address',['Yes','No']), true)}</div>
+      <div class="inline-fields">${fieldGroup('VOW Comment', singleSelect('vow_comment',['Yes','No']), true)}${fieldGroup('VOW AVM', singleSelect('vow_avm',['Yes','No']), true)}</div>
+    </div>`;
+}
+
+function renderListing() {
+  return `
+    <div class="section-card"><h3>Agent & Office</h3>
+      ${fieldGroup('List Agent', textInput('list_agent',''), true)}
+      ${fieldGroup('List Agent License ID', textInput('agent_license',''), true)}
+      ${fieldGroup('List Office', textInput('list_office',''), true)}
+      ${fieldGroup('List Office License ID', textInput('office_license',''), true)}
+      ${fieldGroup('List Team', textInput('list_team',''))}
+      ${fieldGroup('Co-List Agent', textInput('colist_agent',''))}
+      ${fieldGroup('Co-List Office', textInput('colist_office',''))}
+    </div>
+    <div class="section-card"><h3>Listing Details</h3>
+      ${fieldGroup('Listing Type', textInput('listing_type',''), true)}
+      ${fieldGroup('Listing Date', textInput('list_date','','date'), true)}
+      ${fieldGroup('Expiration Date', textInput('exp_date','','date'), true)}
+      ${fieldGroup('Auction?', ynToggle('auction'), true)}
+    </div>
+    <div class="section-card"><h3>Schools</h3>
+      ${fieldGroup('Elementary School', textInput('elem_school',''), true)}
+      ${fieldGroup('Middle School', textInput('mid_school',''), true)}
+      ${fieldGroup('High School', textInput('high_school',''), true)}
+    </div>
+    <div class="section-card"><h3>Virtual Tours</h3>
+      ${fieldGroup('Virtual Tour URL', textInput('virtual_tour','https://','url'))}
+      ${fieldGroup('Non-Branded Virtual Tour', textInput('nb_virtual_tour','https://','url'))}
+      ${fieldGroup('Non-Branded Aerial Tour', textInput('nb_aerial_tour','https://','url'))}
+    </div>`;
+}
+
+function renderFinancial() {
+  return `
+    <div class="section-card"><h3>Taxes</h3>
+      ${fieldGroup('Tax ID #', textInput('tax_id',''), true)}
+      <div class="inline-fields">${fieldGroup('Total Taxes $', textInput('taxes','','text'), true)}${fieldGroup('Tax Year', textInput('tax_year','2025'), true)}</div>
+      ${fieldGroup('Tax Rate', singleSelect('tax_rate',['4%','6%']), true)}
+      ${fieldGroup('Homestead?', ynToggle('homestead'), true)}
+    </div>
+    <div class="section-card"><h3>Sale Type</h3>
+      ${fieldGroup('Short Sale?', ynToggle('short_sale'), true)}
+      ${fieldGroup('Foreclosure?', ynToggle('foreclosure'), true)}
+    </div>
+    <div class="section-card"><h3>HOA</h3>
+      ${fieldGroup('HOA?', ynToggle('hoa'), true)}
+      ${conditional('hoa','Yes',`
+        ${fieldGroup('HOA Fee Mandatory?', ynToggle('hoa_mandatory'), true)}
+        ${fieldGroup('HOA Fee Term', singleSelect('hoa_term',['Annual','Monthly','Other']), true)}
+        ${fieldGroup('HOA Fee $', textInput('hoa_fee','','text'), true)}
+        ${fieldGroup('HOA Contact Name & Phone', textInput('hoa_contact',''))}
+      `)}
+    </div>
+    <div class="section-card"><h3>Special Assessment</h3>
+      ${fieldGroup('Special Assessment?', ynToggle('assessment'), true)}
+      ${conditional('assessment','Yes',`
+        ${fieldGroup('Assessment Mandatory?', ynToggle('assessment_mandatory'))}
+        ${fieldGroup('Assessment Term', singleSelect('assessment_term',['Annual','Monthly','Other']))}
+        ${fieldGroup('Assessment Fee $', textInput('assessment_fee',''))}
+        ${fieldGroup('Assessment Comments', textInput('assessment_comments',''))}
+      `)}
+    </div>
+    <div class="section-card"><h3>Utilities</h3>
+      ${fieldGroup('Electric Company', textInput('electric_co',''))}
+      ${fieldGroup('Gas Company', textInput('gas_co',''))}
+      ${fieldGroup('Water Company', textInput('water_co',''))}
+    </div>
+    <div class="section-card"><h3>Special Finances</h3>
+      ${fieldGroup('Special Finances', multiSelect('special_finances',['XA1 - Assumable','XA2 - Lease/Purchase','XA3 - Owner May Finance','XA4 - Possible Exchange','XA5 - Possible USDA Rural Hsing']))}
+    </div>`;
+}
+
+function renderCurb() {
+  return `
+    <div class="section-card"><h3>First Impression</h3>
+      ${fieldGroup('# of Stories', singleSelect('stories',['1','1 + Basement','1 + Bonus','1.5','1.5 + Basement','2','2 + Basement','Tri/Split Level','3 +','To Be Built','Under Construction','New/Never Lived In']), true)}
+      ${fieldGroup('Approx. Year Built', textInput('year_built',''), true)}
+      ${fieldGroup('Builders Name', textInput('builder',''))}
+      ${fieldGroup('Model Name', textInput('model_name',''))}
+      ${fieldGroup('Zoning', textInput('zoning',''))}
+    </div>
+    <div class="section-card"><h3>AA - Style</h3>
+      ${fieldGroup('Style', singleSelect('style',[
+        'AA1 - Bungalow','AA2 - Cape Cod','AA3 - Charleston','AA4 - Colonial','AA5 - Contemporary','AA6 - Craftsman',
+        'AA7 - Duplex Style','AA8 - European','AA9 - Log','AA10 - Mixed Use','AA11 - Mobile-No Foundation',
+        'AA12 - Mobile-Perm. Foundation','AA13 - Patio','AA14 - Ranch','AA15 - Salt Box','AA16 - Southwestern',
+        'AA17 - Split Foyer','AA18 - Traditional','AA19 - Tri/Split Level','AA20 - Tudor','AA21 - Victorian',
+        'AA22 - Other/See Remarks','AA23 - Mobile Home – Single Wide','AA24 - Mobile Home – Double Wide',
+        'AA25 - Transitional','AA26 - Historical (Docs Req.)','AA27 - Condo Ground Level','AA28 - Condo Upper Level',
+        'AA29 - Country','AA30 - Georgian','AA31 - Modular','AA32 - Providential','AA33 - Rustic','AA34 - Williamsburg'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>BA - Exterior Finish</h3>
+      ${fieldGroup('Exterior Finish', multiSelect('exterior_finish',[
+        'BA1 - Aluminum Siding','BA2 - Asbestos Shingle','BA3 - Block','BA4 - Brick Veneer-Full','BA5 - Brick Veneer-Partial',
+        'BA6 - Concrete Plank','BA7 - Hardboard Siding','BA8 - Masonry Stucco','BA9 - Stone','BA10 - Synthetic Stucco',
+        'BA11 - Vinyl Siding','BA12 - Wood','BA13 - Other/See Remarks','BA14 - Masonite Siding'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>GA - Roof</h3>
+      ${fieldGroup('Roof Type', multiSelect('roof',[
+        'GA1 - Architectural','GA2 - Composition Shingle','GA3 - Metal','GA4 - Slate','GA5 - Tile',
+        'GA6 - Wood Shingle','GA7 - Other/See Remarks','GA8 - Tar/Gravel'
+      ]), true)}
+    </div>`;
+}
+
+function renderGrounds() {
+  return `
+    <div class="section-card"><h3>Lot Info</h3>
+      ${fieldGroup('Approx. Lot Dimensions', textInput('lot_dimensions','Frontage first, then clockwise'))}
+      ${fieldGroup('Approx. # of Acres', textInput('acres','','text'))}
+      ${fieldGroup('Legal Lot Number', textInput('legal_lot',''))}
+      ${fieldGroup('Lot Size/Acreage (Keyword)', singleSelect('lot_size_kw',[
+        '1/2 Acre or Less','1/2 - 1 Acre','1 - 2 Acres','2 - 5 Acres','5 - 10 Acres',
+        '10 - 25 Acres','25 - 50 Acres','50 - 100 Acres','Over 100 Acres'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>CA - Lot Description</h3>
+      ${fieldGroup('Lot Features', multiSelect('lot_desc',[
+        'CA1 - Corner','CA2 - Creek','CA3 - Cul-de-Sac','CA4 - Deeded Boat Slip','CA5 - Dock','CA6 - Fenced Yard',
+        'CA7 - Lake','CA8 - Level','CA9 - Mountain View','CA10 - Mountain','CA11 - On Golf Course','CA12 - Pasture',
+        'CA13 - Pond','CA14 - River','CA15 - Sidewalk','CA16 - Sloped','CA17 - Some Trees','CA18 - Steep',
+        'CA19 - Underground Utilities','CA20 - Water Access','CA21 - Water Front','CA22 - Water View',
+        'CA23 - Wooded','CA24 - Leased Lot','CA25 - Other/See Remarks'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>Lake / Equestrian</h3>
+      ${fieldGroup('Lake Property?', ynToggle('lake_prop'))}
+      ${conditional('lake_prop','Yes',`
+        ${fieldGroup('Lake Name', textInput('lake_name',''))}
+        ${fieldGroup('CB - Lake Features', multiSelect('lake_features',[
+          'CB1 - Water Front Lot','CB2 - Interior Lot','CB3 - Dock in Place','CB4 - Zoned/See Remarks'
+        ]))}
+      `)}
+      ${fieldGroup('Equestrian Property?', ynToggle('equestrian_prop'))}
+      ${conditional('equestrian_prop','Yes',`
+        ${fieldGroup('Location', textInput('equestrian_location',''))}
+        ${fieldGroup('CC - Equestrian Features', multiSelect('equestrian_features',[
+          'CC1 - 1-4 Stalls','CC2 - 5-8 Stalls','CC3 - 9+ Stall','CC4 - Arena','CC5 - Arena Covered','CC6 - Barn',
+          'CC7 - Boarding Stable','CC8 - Fenced','CC9 - Government Land Access','CC10 - Pasture',
+          'CC11 - Riding Trails','CC12 - Round Pen','CC13 - Other/See Remarks'
+        ]))}
+      `)}
+    </div>
+    <div class="section-card"><h3>FA - Exterior Features</h3>
+      ${fieldGroup('Exterior Features', multiSelect('exterior_features',[
+        'FA1 - Balcony','FA2 - Barn/Stall','FA3 - Deck','FA4 - Elevator','FA5 - Generator','FA6 - Disability Access',
+        'FA7 - Hot Tub','FA8 - Outdoor Fireplace','FA9 - Outdoor Kitchen','FA10 - Patio','FA11 - Pool-Above Ground',
+        'FA12 - Pool House','FA13 - Pool-In Ground','FA14 - Porch-Enclosed','FA15 - Porch-Front','FA16 - Porch-Screened',
+        'FA17 - Porch-Other','FA18 - Porch-Wrap Around','FA19 - Riding Area','FA20 - Satellite Dish',
+        'FA21 - Sprklr In Grnd-Full Yard','FA22 - Sprklr In Grnd-Partial Yd','FA23 - Some Storm Doors',
+        'FA24 - Some Storm Windows','FA25 - Tilt Out Windows','FA26 - Vinyl/Aluminum Trim','FA27 - Windows-Insulated',
+        'FA28 - None','FA29 - Outdoor Grill','FA30 - Porch-Covered Back','FA31 - Water Feature',
+        'FA32 - R/V-Boat Parking','FA33 - Greenhouse','FA34 - Solar Panels – Leased','FA35 - Solar Panels – Owned',
+        'FA36 - Under Ground Irrigation','FA37 - Other/See Remarks'
+      ]), true)}
+    </div>`;
+}
+
+function renderParking() {
+  return `
+    <div class="section-card"><h3>Parking Overview</h3>
+      ${fieldGroup('Parking Type (Keyword)', singleSelect('parking_type_kw',[
+        'None','Attached Garage','Detached Garage','Attached Carport','Detached Carport','Combination','See Parking Features'
+      ]), true)}
+      ${fieldGroup('Garage Total Capacity (Keyword)', singleSelect('garage_cap_kw',['None','1','2','3','4','5','6 +']), true)}
+    </div>
+    <div class="section-card"><h3>HA - Parking / Garage</h3>
+      ${fieldGroup('Parking Details', multiSelect('parking_features',[
+        'HA1 - Assigned Parking 1 Sp','HA2 - Assigned Parking 2 Sp','HA3 - Assigned Parking 3+ Sp',
+        'HA4 - Attached Garage 1 Car','HA5 - Attached Garage 2 Cars','HA6 - Attached Garage 3+ Cars',
+        'HA7 - Basement Level','HA8 - Carport 1 Car','HA9 - Carport 2 Cars','HA10 - Carport 3+ Cars',
+        'HA11 - Courtyard Entry','HA12 - Covered Parking Spaces','HA13 - Detached Garage 1 Car',
+        'HA14 - Detached Garage 2 Cars','HA15 - Detached Garage 3+ Cars','HA16 - Door Opener',
+        'HA17 - Key Pad Entry','HA18 - Side/Rear Entry','HA19 - Tandem','HA20 - Workshop',
+        'HA21 - Yard Door','HA22 - None','HA23 - Other/See Remarks','HA24 - Driveway Parking'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>HB - Driveway</h3>
+      ${fieldGroup('Driveway Type', multiSelect('driveway',[
+        'HB1 - Circular','HB2 - Gravel','HB3 - Easement','HB4 - Extra Pad','HB5 - Paved',
+        'HB6 - Shared or Common','HB7 - Specialty','HB8 - Unpaved','HB9 - None',
+        'HB10 - Paved Asphalt','HB11 - Paved Concrete','HB12 - Other/See Remarks'
+      ]), true)}
+    </div>`;
+}
+
+function renderStructure() {
+  return `
+    <div class="section-card"><h3>DA - Foundation</h3>
+      ${fieldGroup('Foundation Type', multiSelect('foundation',[
+        'DA1 - Basement','DA2 - Crawl Space','DA3 - Crawl Space/Slab','DA4 - Slab',
+        'DA5 - Sump Pump','DA6 - Dehumidifier','DA7 - Wood','DA8 - Other/See Remarks'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>EA - Basement</h3>
+      ${fieldGroup('Basement Features', multiSelect('basement',[
+        'EA1 - Full Finished','EA2 - Partial Finished','EA3 - Full','EA4 - Partial','EA5 - Stubbed',
+        'EA6 - Sump Pump','EA7 - Unfinished','EA8 - Unfinished HVAC','EA9 - Walkout',
+        'EA10 - Dehumidifier','EA11 - Interior Access','EA12 - None','EA13 - Other/See Remarks'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>Disclosures</h3>
+      ${fieldGroup('Residential Property Disclosure Required?', ynToggle('disclosure_req'), true)}
+      ${fieldGroup('Lead Based Paint Disclosure Required?', ynToggle('lead_paint_req'), true)}
+    </div>`;
+}
+
+function renderInterior() {
+  return `
+    <div class="section-card"><h3>Square Footage</h3>
+      ${fieldGroup('Approx. Finished/Heated Sq Ft', textInput('sqft_heated','','number'), true)}
+      ${fieldGroup('Total Sq Ft Keyword', singleSelect('sqft_kw',[
+        '0-699','0700-999','1000-1199','1200-1399','1400-1599','1600-1799','1800-1999',
+        '2000-2199','2200-2399','2400-2599','2600-2799','2800-2999','3000-3199',
+        '3200-3399','3400-3599','3600-3799','3800-3999','4000-4199','4200-4399',
+        '4400-4599','4600-4799','4800-4999','5000-5199','5200-5399','5400-5599',
+        '5600-5799','5800-5999','6000-6199','6200-6399','6400-6599','6600-6799',
+        '6800-6999','7000 +'
+      ]), true)}
+      ${fieldGroup('Below Grade Finished Sq Ft Range', textInput('sqft_below',''))}
+      ${fieldGroup('Other Rooms Finished Sq Ft Range', textInput('sqft_other',''))}
+      ${fieldGroup('Unfinished Sq Ft Range', textInput('sqft_unfinished',''))}
+      ${fieldGroup('Approx. Age (Keyword)', singleSelect('age_kw',['1-5','6-10','11-20','21-30','31-50','50 +','Unknown']), true)}
+    </div>
+    <div class="section-card"><h3>PA - Flooring</h3>
+      ${fieldGroup('Floor Types', multiSelect('floors',[
+        'PA1 - Bamboo','PA2 - Brick','PA3 - Carpet','PA4 - Ceramic Tile','PA5 - Concrete','PA6 - Cork',
+        'PA7 - Wood','PA8 - Hwd/Pine Flr Under Carpet','PA9 - Laminate Flooring','PA10 - Marble',
+        'PA11 - Parquet','PA12 - Pine','PA13 - Slate','PA14 - Stone','PA15 - Vinyl',
+        'PA16 - Other/See Remarks','PA17 - Luxury Vinyl Tile/Plank'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>IA - Interior Features</h3>
+      ${fieldGroup('Features', multiSelect('interior_features',[
+        'IA1 - 2 Story Foyer','IA2 - 2nd Stair Case','IA3 - Attic Stairs Disappearing','IA4 - Attic Stairs Permanent',
+        'IA5 - Bookcase','IA6 - Cable Available','IA7 - Ceiling Fan','IA8 - Ceiling 9ft+',
+        'IA9 - Ceiling Cathedral/Vaulted','IA10 - Ceiling Trey','IA11 - Ceiling Blown','IA12 - Ceiling Smooth',
+        'IA13 - Ceiling – Dropped','IA14 - Ceiling – Coffered','IA15 - Central Vacuum',
+        'IA16 - Countertops Granite','IA17 - Countertops – Quartz','IA18 - Countertops – Laminate',
+        'IA19 - Countertops-Solid Surface','IA20 - Countertops-Other','IA21 - Dual Primary Bedrooms',
+        'IA22 - Elevator','IA23 - Gas Dryer Hookup','IA24 - Disability Access','IA25 - Second Living Quarters',
+        'IA26 - Intercom','IA27 - Multi-Phone Lines','IA28 - Open Floor Plan','IA29 - Pantry – Closet',
+        'IA30 - Pantry – Walk In','IA31 - Pot Filler Faucet','IA32 - Radon System','IA33 - Sauna',
+        'IA34 - Sec. System-Owned/Conveys','IA35 - Security System Leased','IA36 - Sky Lights',
+        'IA37 - Smart Systems Pre-Wiring','IA38 - Smoke Detector','IA39 - Window Trmnts-Some Remain',
+        'IA40 - Split Floor Plan','IA41 - Tub-Jetted','IA42 - Tub Garden','IA43 - Walk In Closet',
+        'IA44 - Wet Bar','IA45 - Water Purifcation','IA46 - Attic Fan','IA47 - Countertops-Ceramic Tile',
+        'IA48 - Window Trtments-AllRemain','IA49 - Other/See Remarks'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>Second Living Quarters</h3>
+      ${fieldGroup('Second Living Quarters?', ynToggle('second_living'))}
+      ${conditional('second_living','Yes',`
+        ${fieldGroup('IB - Details', multiSelect('second_living_features',[
+          'IB1 - Basement','IB2 - Detached','IB3 - Kitchen/Kitchenette',
+          'IB4 - Main Level','IB5 - Second Level','IB6 - Separate Entrance'
+        ]))}
+      `)}
+    </div>`;
+}
+
+function renderRooms() {
+  const rooms = [
+    {key:'living',name:'Living Room',req:true},{key:'dining',name:'Dining Room',req:true},
+    {key:'breakfast',name:'Breakfast',req:true},{key:'kitchen',name:'Kitchen',req:true},
+    {key:'great',name:'Great Room',req:true},{key:'den',name:'Den',req:true},
+    {key:'bonus',name:'Bonus/Rec',req:true},{key:'sunroom',name:'Sun Room',req:true},
+    {key:'primary_br',name:'Primary BR',req:true},{key:'br2',name:'BR #2',req:true},
+    {key:'br3',name:'BR #3',req:true},{key:'br4',name:'BR #4',req:true},
+    {key:'br5',name:'BR #5',req:false},{key:'scr_porch',name:'Scr. Porch',req:false},
+    {key:'deck',name:'Deck',req:false},{key:'patio',name:'Patio',req:false},
+    {key:'laundry',name:'Laundry',req:true},{key:'loft',name:'Loft',req:false}
+  ];
+  const levels = ['Main','Upper','Lower','Basement','Bonus'];
+  let roomRows = rooms.map(r => {
+    const yn=getVal(`room_${r.key}_yn`), size=getVal(`room_${r.key}_size`), level=getVal(`room_${r.key}_level`);
+    return `<div class="room-row">
+      <div class="room-name">${r.name}${r.req?' <span style="color:var(--error);font-size:10px">*</span>':''}</div>
+      <div class="room-yn ${yn==='Y'?'yes':''}" onclick="setVal('room_${r.key}_yn',getVal('room_${r.key}_yn')==='Y'?'N':'Y'); renderCurrentStep()">${yn||'—'}</div>
+      <input class="room-input" placeholder="Size" value="${size}" oninput="setVal('room_${r.key}_size',this.value)" />
+      <select class="level-select" onchange="setVal('room_${r.key}_level',this.value)">
+        <option value="">Level</option>${levels.map(l=>`<option value="${l}" ${level===l?'selected':''}>${l}</option>`).join('')}
+      </select>
+    </div>`;
+  }).join('');
+  let otherRows = '';
+  for (let i=1;i<=5;i++) {
+    const nm=getVal(`other_room_${i}_name`),sz=getVal(`other_room_${i}_size`),lv=getVal(`other_room_${i}_level`);
+    otherRows += `<div class="room-row">
+      <input class="room-input" placeholder="Room ${i}" value="${nm}" oninput="setVal('other_room_${i}_name',this.value)" style="font-weight:600" />
+      <div></div>
+      <input class="room-input" placeholder="Size" value="${sz}" oninput="setVal('other_room_${i}_size',this.value)" />
+      <select class="level-select" onchange="setVal('other_room_${i}_level',this.value)">
+        <option value="">Level</option>${levels.map(l=>`<option value="${l}" ${lv===l?'selected':''}>${l}</option>`).join('')}
+      </select>
+    </div>`;
+  }
+  return `
+    <div class="section-card"><h3>Bed / Bath Count</h3>
+      <div class="inline-fields">${fieldGroup('# Bedrooms',textInput('num_bedrooms','','number'),true)}${fieldGroup('# BRs on Main',textInput('num_br_main','','number'),true)}</div>
+      <div class="inline-fields">${fieldGroup('# Full Baths',textInput('num_fullbaths','','number'),true)}${fieldGroup('# FBs on Main',textInput('num_fb_main','','number'),true)}</div>
+      <div class="inline-fields">${fieldGroup('# Half Baths',textInput('num_halfbaths','','number'),true)}${fieldGroup('# BRs Below Grade',textInput('num_br_below','','number'))}</div>
+      <div class="inline-fields">${fieldGroup('# Rooms Below Grade',textInput('num_rooms_below','','number'))}${fieldGroup('# Fireplaces',textInput('num_fireplaces','','number'),true)}</div>
+    </div>
+    <div class="section-card"><h3>Room Details</h3>
+      <div style="font-size:11px;color:var(--gray);margin-bottom:10px">Tap Y/N, enter size, select level</div>
+      <div style="display:grid;grid-template-columns:100px 50px 1fr 80px;gap:8px;padding:6px 0;border-bottom:2px solid var(--gray-light);margin-bottom:4px">
+        <div style="font-size:11px;font-weight:700;color:var(--gray)">ROOM</div><div style="font-size:11px;font-weight:700;color:var(--gray)">Y/N</div>
+        <div style="font-size:11px;font-weight:700;color:var(--gray)">SIZE</div><div style="font-size:11px;font-weight:700;color:var(--gray)">LEVEL</div>
+      </div>${roomRows}
+    </div>
+    <div class="section-card"><h3>Other Rooms</h3>${otherRows}</div>`;
+}
+
+function renderPrimary() {
+  return `<div class="section-card"><h3>JA - Primary Bedroom Features</h3>
+    ${fieldGroup('Primary BR Features', multiSelect('primary_features',[
+      'JA1 - Dressing Room','JA2 - Double Sink','JA3 - Fireplace','JA4 - Full Bath','JA5 - Half Bath',
+      'JA6 - Primary on 2nd Lvl','JA7 - Primary on Main Lvl','JA8 - Multiple Closets',
+      'JA9 - Shower Only','JA10 - Shower-Separate','JA11 - Shower - Steam','JA12 - Sitting Room',
+      'JA13 - Tub-Garden','JA14 - Tub-Separate','JA15 - Tub/Shower','JA16 - Tub-Jetted',
+      'JA17 - Walk-in Closet','JA18 - Other/See Remarks'
+    ]), true)}
+  </div>`;
+}
+
+function renderKitchen() {
+  return `<div class="section-card"><h3>LA - Appliances</h3>
+    ${fieldGroup('Appliances', multiSelect('appliances',[
+      'LA1 - Compactor','LA2 - Cook Top-Dwn Draft','LA3 - Cook Top-Electric','LA4 - Cook Top-Gas',
+      'LA5 - Cook Top-Smooth','LA6 - Dishwasher','LA7 - Disposal','LA8 - Double Oven','LA9 - Dryer',
+      'LA10 - Freezer','LA11 - Ice Machine','LA12 - Microwave-Stand Alone','LA13 - Microwave-Built In',
+      'LA14 - Microwave-Convection','LA15 - Oven(s)-Wall','LA16 - Oven-Convection','LA17 - Oven-Electric',
+      'LA18 - Oven-Gas','LA19 - Oven-Self Cleaning','LA20 - Refrigerator','LA21 - Stand Alone Rng-Down Drft',
+      'LA22 - Stand Alone Rng-Electric','LA23 - Stand Alone Range-Gas','LA24 - Stand Alone Rng-Smooth Tp',
+      'LA25 - Warming Drawer','LA26 - Washer','LA27 - Wine Chiller','LA28 - Other/See Remarks',
+      'LA29 - None','LA30 - Range Hood','LA31 - Wood Stove'
+    ]), true)}
+  </div>`;
+}
+
+function renderSpecialty() {
+  return `
+    <div class="section-card"><h3>KA - Specialty Rooms</h3>
+      ${fieldGroup('Specialty Rooms', multiSelect('specialty_rooms',[
+        'KA1 - Comb Liv & Din Room','KA2 - Exercise Room','KA3 - Laundry','KA4 - Loft',
+        'KA5 - Media Room/Home Theater','KA6 - Office/Study','KA7 - Sun Room','KA8 - Workshop',
+        'KA9 - Bonus Room/Rec Room','KA10 - 2nd Kitchen/Kitchenette','KA11 - Wine Cellar',
+        'KA12 - Other/See Remarks','KA13 - None','KA14 - Attic','KA15 - Breakfast Area',
+        'KA16 - Greenhouse','KA17 - Guest Accommodations','KA18 - Unfinished Space'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>KB - Laundry</h3>
+      ${fieldGroup('Laundry Features', multiSelect('laundry_features',[
+        'KB1 - 1st Floor','KB2 - 2nd Floor','KB3 - Basement','KB4 - Closet Style','KB5 - Garage/Storage',
+        'KB6 - Kitchen','KB7 - Sink','KB8 - Walk-in','KB9 - Dryer – Gas Hookup','KB10 - Dryer – Electric Hookup',
+        'KB11 - Multiple Hookups','KB12 - Stackable Accommodating','KB13 - None','KB14 - Washer Connection'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>TA - Storage</h3>
+      ${fieldGroup('Storage Space', multiSelect('storage',[
+        'TA1 - Attic','TA2 - Garage','TA3 - Out Building','TA4 - Out Building w/Elec.',
+        'TA5 - Other/See Remarks','TA6 - None','TA7 - Basement','TA8 - Out Building w/ Water'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>MA - Fireplace</h3>
+      ${fieldGroup('Fireplace Features', multiSelect('fireplace',[
+        'MA1 - Circulating','MA2 - Double Sided/See Through','MA3 - Freestanding','MA4 - Gas Logs',
+        'MA5 - Gas Starter','MA6 - Masonry','MA7 - Outdoor','MA8 - Screen','MA9 - Ventless',
+        'MA10 - Woodstove','MA11 - Wood Burning Fireplace','MA12 - None'
+      ]), true)}
+    </div>`;
+}
+
+function renderSystems() {
+  return `
+    <div class="section-card"><h3>NA - Heating</h3>
+      ${fieldGroup('Heating System', multiSelect('heating',[
+        'NA1 - Baseboard','NA2 - Damper Controlled','NA3 - Ductless','NA4 - Electric','NA5 - Gas Available',
+        'NA6 - Geothermal','NA7 - Floor Furnace','NA8 - Forced Air','NA9 - Multi-Units','NA10 - Natural Gas',
+        'NA11 - No Heat','NA12 - Oil','NA13 - Propane Gas','NA14 - Radiant','NA15 - Radiator',
+        'NA16 - Solar','NA17 - Wall Furnace','NA18 - Wood','NA19 - Heat Pump','NA20 - Ceiling Cable',
+        'NA21 - Hot Water','NA22 - Space Pack','NA23 - Other/See Remarks'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>OA - Cooling</h3>
+      ${fieldGroup('Cooling System', multiSelect('cooling',[
+        'OA1 - Attic Fan','OA2 - Central Forced','OA3 - Damper Controlled','OA5 - Electric',
+        'OA6 - Geothermal','OA7 - Wall/Window Unit','OA8 - Multi-Units','OA9 - No Cooling',
+        'OA10 - Heat Pump','OA11 - Other/See Remarks'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>Water & Sewer</h3>
+      ${fieldGroup('QA - Water', singleSelect('water',['QA1 - Public','QA2 - Public Available','QA3 - Private Co-Op','QA4 - Well','QA5 - Other/See Remarks']), true)}
+      ${fieldGroup('RA - Sewer', singleSelect('sewer',['RA1 - Public','RA2 - Public Available','RA3 - Septic','RA4 - Private Sewer','RA5 - Sewage Pump','RA6 - Other/See Remarks']), true)}
+    </div>
+    <div class="section-card"><h3>SA - Water Heater</h3>
+      ${fieldGroup('Water Heater', multiSelect('water_heater',[
+        'SA1 - Electric','SA2 - Gas','SA3 - Multiple Units','SA4 - Tankless','SA5 - Other/See Remarks'
+      ]), true)}
+    </div>`;
+}
+
+function renderHOA() {
+  return `
+    <div class="section-card"><h3>ZB - HOA Fee Includes</h3>
+      <div style="font-size:12px;color:var(--gray);margin-bottom:10px">Only if HOA = Yes</div>
+      ${fieldGroup('Fee Includes', multiSelect('hoa_includes',[
+        'ZB1 - By-Laws','ZB2 - Common Area Ins.','ZB3 - Common Area-Electric','ZB4 - Common Area-Gas',
+        'ZB5 - Exterior Maintenance','ZB6 - Insurance','ZB7 - Lawn Maintenance','ZB8 - Parking',
+        'ZB9 - Pest Control','ZB10 - Pet Restrictions','ZB11 - Pool','ZB12 - Recreation Facilities',
+        'ZB13 - Restrictive Covenants','ZB14 - Security','ZB15 - Street Lights','ZB16 - Termite Contract',
+        'ZB17 - Trash Service','ZB18 - Water','ZB19 - Other/See Remarks','ZB20 - None',
+        'ZB21 - Yard Irrigation','ZB22 - Cable TV','ZB23 - Electric','ZB24 - Gas'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>ZC - Community Amenities</h3>
+      ${fieldGroup('Amenities', multiSelect('community',[
+        'ZC1 - Age Restricted','ZC2 - Air Strip','ZC3 - Athletic Facilities Field','ZC4 - Boat Ramp',
+        'ZC5 - Boat Storage','ZC6 - Club House','ZC7 - Common Areas','ZC8 - Dock','ZC9 - Dog Park',
+        'ZC10 - Exercise Facility','ZC11 - Gated Community','ZC12 - Golf','ZC13 - Historic Area',
+        'ZC14 - Horses Permitted','ZC15 - Landscape Maintenance','ZC16 - Lawn Maintenance','ZC17 - Lights',
+        'ZC18 - Neighborhood Lake/Pond','ZC19 - Recreational Path','ZC20 - Pet Restrictions','ZC21 - Playground',
+        'ZC22 - Pool','ZC23 - Private Roads','ZC24 - Security Guard','ZC25 - Some Sidewalks',
+        'ZC26 - Spa/Hot Tub','ZC27 - Tennis Court','ZC28 - Vehicle Restrictions','ZC29 - Water Access',
+        'ZC30 - Other/See Remarks','ZC31 - None','ZC32 - Bike Path','ZC33 - Cable TV','ZC34 - Pets Allowed',
+        'ZC35 - Storage','ZC36 - Walking Trails','ZC37 - Community Center','ZC38 - Marina','ZC39 - Water Front Parks'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>ZE - Additional Fees</h3>
+      ${fieldGroup('Additional Fees', multiSelect('additional_fees',[
+        'ZE1 - Condo Move-In Fee','ZE2 - HOA Mgmt Transfer Fee','ZE3 - Subdivision Transfer Fee',
+        'ZE4 - Other/Misc.Fee','ZE5 - None','ZE6 - Cap Contr./Perpetual Fee'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>YA - Garbage</h3>
+      ${fieldGroup('Garbage Pickup', singleSelect('garbage',['YA1 - Private','YA2 - Public','YA3 - None']), true)}
+    </div>`;
+}
+
+function renderDocs() {
+  return `
+    <div class="section-card"><h3>UA - Documents on File</h3>
+      ${fieldGroup('Docs on File', multiSelect('docs_on_file',[
+        'UA1 - 3rd Party Documents','UA2 - Appraisal','UA3 - CL100','UA4 - Energy Star Docs',
+        'UA5 - Foreclosure Documents','UA6 - Green Certification Docs','UA7 - Home Inspection',
+        'UA8 - House Plans','UA9 - Lead Based Paint Doc.','UA10 - Lease(s)','UA11 - Radon Test',
+        'UA12 - Restric.Cov/By-Laws','UA13 - Seller Disclosure','UA14 - Septic Inspection',
+        'UA15 - Soil Test','UA16 - Stucco Report','UA17 - Survey','UA18 - Termite Bond',
+        'UA19 - Topography Study','UA20 - Well Inspection','UA21 - Warranty Furnished',
+        'UA22 - Other/See Remarks','UA23 - None','UA24 - SQFT Sketch','UA25 - Street Maint. Agreement',
+        'UA26 - Historical Docs'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>VA - Documents with Offer</h3>
+      ${fieldGroup('Docs with Offer', multiSelect('docs_with_offer',[
+        'VA1 - 3rd Party Addendum','VA2 - As Is Addendum','VA3 - Copy Earnest Money Check',
+        'VA4 - Foreclosure Documents','VA5 - Lead Based Paint Letter','VA6 - Pre-approve/Proof of Fund',
+        'VA7 - Signed SDS','VA8 - Specified Sales Contract','VA9 - Other/See Remarks',
+        'VA10 - None','VA11 - Signed MLS Full Detail'
+      ]), true)}
+    </div>
+    <div class="section-card"><h3>Certifications</h3>
+      ${fieldGroup('ZF - Green Certification', multiSelect('green_cert',[
+        'ZF1 - Full - Docs Req','ZF2 - Partial - Docs Req','ZF3 - EnergyStar Cert Hm-DocReq','ZF4 - Other - Docs Req'
+      ]))}
+      ${fieldGroup('ZG - Disability Features', multiSelect('disability',[
+        'ZG1 - ADA Certified- Docs Req.','ZG2 - ADA Door Handles','ZG3 - Exterior Ramp',
+        'ZG4 - Lift/Elevator','ZG5 - Roll in Shower','ZG6 - Wide Doorways'
+      ]))}
+    </div>
+    <div class="section-card"><h3>XB - Mobile Home</h3>
+      ${fieldGroup('Mobile Home', multiSelect('mobile_home',['XB1 - De-Titled','XB2 - FHA Compliant']))}
+    </div>`;
+}
+
+function renderShowing() {
+  return `
+    <div class="section-card"><h3>ZD - Showing Instructions</h3>
+      ${fieldGroup('Showing', multiSelect('showing',[
+        'ZD1 - Advance Notice Required','ZD2 - Appointment/Call Center','ZD3 - Beware of Pets',
+        'ZD4 - Entry/Gate Code Required','ZD5 - List Agent Present','ZD6 - Lockbox-CBS Code Required',
+        'ZD7 - Lockbox-Combination','ZD8 - Lockbox-Electronic','ZD9 - No Appointment Required',
+        'ZD10 - No Sign','ZD11 - Occupied','ZD12 - Owner-Agent','ZD13 - Owner/Agent Related',
+        'ZD14 - Restricted Hours','ZD15 - Show Anytime','ZD16 - Tenant Occupied',
+        'ZD17 - Utilities Disconnected','ZD18 - Vacant','ZD19 - Other/See Remarks',
+        'ZD20 - Call Listing Office/Agent','ZD21 - Under Construction','ZD22 - Showing Time'
+      ]), true)}
+      ${fieldGroup('Showing Contact', singleSelect('showing_contact',[
+        'Call Listing Agent','Call Listing Office','Call Specified Appointment Center','Must use App/URL only','Other'
+      ]), true)}
+      ${fieldGroup('Contact # for Appointments', textInput('showing_phone','','tel'), true)}
+      ${fieldGroup('Online Appointment URL', textInput('showing_url','','url'))}
+    </div>
+    <div class="section-card"><h3>XC - Possession</h3>
+      ${fieldGroup('Possession', singleSelect('possession',['XC1 - At Close','XC2 - Immediate','XC3 - Negotiable','XC4 - Other/See Remarks']), true)}
+    </div>
+    <div class="section-card"><h3>Lockbox</h3>
+      ${fieldGroup('Supra Lockbox?', ynToggle('supra_lockbox'), true)}
+      ${conditional('supra_lockbox','Yes',`
+        ${fieldGroup('Lockbox S/N', textInput('lockbox_sn',''))}
+        ${fieldGroup('Lockbox CBS Code', textInput('lockbox_cbs',''))}
+      `)}
+    </div>
+    <div class="section-card"><h3>Owner Info</h3>
+      ${fieldGroup('Owner Name', textInput('owner_name',''))}
+      ${fieldGroup('Owner Phone', textInput('owner_phone','','tel'))}
+      ${fieldGroup('Detailed Showing Instructions', textInput('showing_detail',''))}
+    </div>`;
+}
+
+function renderRemarks() {
+  return `
+    <div class="section-card"><h3>Directions</h3>
+      <div style="font-size:11px;color:var(--gray);margin-bottom:8px">255 characters max</div>
+      ${textArea('directions','Driving directions...',255)}
+    </div>
+    <div class="section-card"><h3>MLS Remarks (Public)</h3>
+      <div style="font-size:11px;color:var(--gray);margin-bottom:8px">NO branding. 4,000 chars.</div>
+      ${textArea('remarks_mls','Property description for MLS & IDX...',4000)}
+    </div>
+    <div class="section-card"><h3>Syndication Remarks</h3>
+      <div style="font-size:11px;color:var(--gray);margin-bottom:8px">Branding IS allowed. 4,000 chars.</div>
+      ${textArea('remarks_syndication','Zillow, Realtor.com etc...',4000)}
+    </div>
+    <div class="section-card"><h3>Member Remarks (Private)</h3>
+      <div style="font-size:11px;color:var(--gray);margin-bottom:8px">Agent-to-agent only. 4,000 chars.</div>
+      ${textArea('remarks_member','Notes for other agents...',4000)}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════
+// SUMMARY
+// ═══════════════════════════════════════════
+function renderSummary() {
+  const sections = buildParagonSections();
+  let html = `
+    <div class="section-card" style="background:var(--blue);color:var(--white);text-align:center;padding:24px 16px;">
+      <h3 style="color:var(--white);margin-bottom:8px">📊 Paragon Entry Summary</h3>
+      <p style="font-size:13px;opacity:0.85;margin-bottom:16px">Tap any value to copy it. Use section Copy buttons for bulk entry.</p>
+      <button class="action-btn gold" onclick="generateShareLink()">🔗 Generate Link (Send to Computer)</button>
+      <button class="action-btn blue" onclick="emailData()">📧 Email My Data</button>
+      <button class="action-btn outline" style="color:var(--white);border-color:rgba(255,255,255,0.4)" onclick="copyAllSummary()">📋 Copy All Data</button>
+      <button class="action-btn danger" onclick="clearAllData()">🗑️ Clear All & Start New</button>
+    </div>`;
+  sections.forEach((section,i) => {
+    if (!section.rows.length) return;
+    const sid = 'section_'+i;
+    html += `<div class="summary-section">
+      <div class="summary-header"><h4>${section.title}</h4>
+        <button class="copy-btn" id="copy_${sid}" onclick="copySection(${i},'${sid}')">Copy</button>
+      </div>
+      <div class="summary-body">
+        ${section.rows.map((r,ri) => `<div class="summary-row" onclick="copyValue(this,'${r.value.replace(/'/g,"\\'")}')">
+          <span class="summary-key">${r.label}</span>
+          <span class="summary-val">${r.value}</span>
+          <span class="copy-hint">⧉</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+function copyValue(el, val) {
+  navigator.clipboard.writeText(val).then(() => {
+    el.classList.add('just-copied');
+    showToast('Copied: ' + (val.length > 40 ? val.substring(0,40)+'...' : val));
+    setTimeout(() => el.classList.remove('just-copied'), 1500);
+  });
+}
+
+function buildParagonSections() {
+  const s = k => { const v=formData[k]; return Array.isArray(v)?v.length?v.join(', '):'':v||''; };
+  const row = (l,k) => { const v=s(k); return v?{label:l,value:v}:null; };
+  const roomRow = (name,key) => {
+    const yn=s(`room_${key}_yn`); if(!yn) return null;
+    const sz=s(`room_${key}_size`), lv=s(`room_${key}_level`);
+    let v=yn; if(sz) v+=` | ${sz}`; if(lv) v+=` | ${lv}`;
+    return {label:name,value:v};
+  };
+  return [
+    { title:'1. GENERAL', rows:[
+      row('Type','type'),{label:'Address',value:[s('st_num'),s('st_name'),s('st_type')].filter(Boolean).join(' ')||''},
+      row('Address 2','address2'),row('Subdivision','subdivision'),row('City','city'),row('State','state'),
+      row('Zip','zip'),row('County','county'),row('In City','in_city'),row('Area','area'),row('Price','price'),
+      row('IDX','idx'),row('On Internet','on_internet'),row('VOW Include','vow_include'),
+      row('VOW Address','vow_address'),row('VOW Comment','vow_comment'),row('VOW AVM','vow_avm'),
+    ].filter(r=>r&&r.value) },
+    { title:'2. STANDARD', rows:[
+      row('Tax ID','tax_id'),row('Lot Dimensions','lot_dimensions'),row('Acres','acres'),row('Legal Lot','legal_lot'),
+      row('Year Built','year_built'),row('Builder','builder'),row('Model','model_name'),row('Zoning','zoning'),
+      row('Elem School','elem_school'),row('Mid School','mid_school'),row('High School','high_school'),
+      row('Auction','auction'),row('2nd Living Qtrs','second_living'),
+      row('List Agent','list_agent'),row('Agent License','agent_license'),row('List Office','list_office'),
+      row('Office License','office_license'),row('Team','list_team'),row('Co-List Agent','colist_agent'),
+      row('Co-List Office','colist_office'),row('Listing Type','listing_type'),row('List Date','list_date'),
+      row('Exp Date','exp_date'),row('Virtual Tour','virtual_tour'),row('NB Virtual Tour','nb_virtual_tour'),
+      row('NB Aerial Tour','nb_aerial_tour'),row('Disclosure Req','disclosure_req'),row('Lead Paint Req','lead_paint_req'),
+      row('Lake Property','lake_prop'),row('Lake Name','lake_name'),row('Equestrian','equestrian_prop'),
+    ].filter(r=>r&&r.value) },
+    { title:'3. FINANCIAL', rows:[
+      row('Taxes','taxes'),row('Tax Year','tax_year'),row('Tax Rate','tax_rate'),
+      row('Short Sale','short_sale'),row('Foreclosure','foreclosure'),row('HOA','hoa'),
+      row('HOA Mandatory','hoa_mandatory'),row('HOA Term','hoa_term'),row('HOA Fee','hoa_fee'),
+      row('HOA Contact','hoa_contact'),row('Assessment','assessment'),row('Assessment Fee','assessment_fee'),
+      row('Homestead','homestead'),row('Electric','electric_co'),row('Gas','gas_co'),row('Water Co','water_co'),
+    ].filter(r=>r&&r.value) },
+    { title:'4. KEYWORDS', rows:[
+      row('Stories','stories'),row('Age','age_kw'),row('Parking Type','parking_type_kw'),
+      row('Garage Cap','garage_cap_kw'),row('Sq Ft Range','sqft_kw'),row('Lot Size','lot_size_kw'),
+    ].filter(r=>r&&r.value) },
+    { title:'5. SQ FOOTAGE', rows:[
+      row('Heated Sq Ft','sqft_heated'),row('Below Grade','sqft_below'),
+      row('Other Rooms','sqft_other'),row('Unfinished','sqft_unfinished'),
+    ].filter(r=>r&&r.value) },
+    { title:'6. ROOM INFO', rows:[
+      row('# Bedrooms','num_bedrooms'),row('# BRs Main','num_br_main'),row('# Full Baths','num_fullbaths'),
+      row('# FBs Main','num_fb_main'),row('# Half Baths','num_halfbaths'),row('# BRs Below','num_br_below'),
+      row('# Rooms Below','num_rooms_below'),row('# Fireplaces','num_fireplaces'),
+      roomRow('Living','living'),roomRow('Dining','dining'),roomRow('Breakfast','breakfast'),
+      roomRow('Kitchen','kitchen'),roomRow('Great Room','great'),roomRow('Den','den'),
+      roomRow('Bonus/Rec','bonus'),roomRow('Sun Room','sunroom'),roomRow('Primary BR','primary_br'),
+      roomRow('BR #2','br2'),roomRow('BR #3','br3'),roomRow('BR #4','br4'),roomRow('BR #5','br5'),
+      roomRow('Scr Porch','scr_porch'),roomRow('Deck','deck'),roomRow('Patio','patio'),
+      roomRow('Laundry','laundry'),roomRow('Loft','loft'),
+    ].filter(r=>r&&r.value) },
+    { title:'7. FEATURES', rows:[
+      row('Style','style'),row('Exterior Finish','exterior_finish'),row('Lot Desc','lot_desc'),
+      row('Lake Features','lake_features'),row('Equestrian Features','equestrian_features'),
+      row('Foundation','foundation'),row('Basement','basement'),row('Exterior Features','exterior_features'),
+      row('Roof','roof'),row('Parking/Garage','parking_features'),row('Driveway','driveway'),
+      row('Interior Features','interior_features'),row('2nd Living Qtrs','second_living_features'),
+      row('Primary BR','primary_features'),row('Specialty Rooms','specialty_rooms'),
+      row('Laundry','laundry_features'),row('Appliances','appliances'),row('Fireplace','fireplace'),
+      row('Heating','heating'),row('Cooling','cooling'),row('Floors','floors'),
+      row('Water','water'),row('Sewer','sewer'),row('Water Heater','water_heater'),
+      row('Storage','storage'),row('Docs on File','docs_on_file'),row('Docs w/ Offer','docs_with_offer'),
+      row('Possession','possession'),row('Garbage','garbage'),row('HOA Includes','hoa_includes'),
+      row('Community','community'),row('Showing','showing'),row('Addl Fees','additional_fees'),
+      row('Green Cert','green_cert'),row('Disability','disability'),row('Special Finance','special_finances'),
+      row('Mobile Home','mobile_home'),
+    ].filter(r=>r&&r.value) },
+    { title:'8. SHOWING & OFFICE', rows:[
+      row('Showing Contact','showing_contact'),row('Contact #','showing_phone'),row('Appt URL','showing_url'),
+      row('Supra Lockbox','supra_lockbox'),row('Lockbox S/N','lockbox_sn'),row('CBS Code','lockbox_cbs'),
+      row('Owner','owner_name'),row('Owner Phone','owner_phone'),row('Detail','showing_detail'),
+    ].filter(r=>r&&r.value) },
+    { title:'9. REMARKS', rows:[
+      row('Directions','directions'),row('MLS Remarks','remarks_mls'),
+      row('Syndication','remarks_syndication'),row('Member Remarks','remarks_member'),
+    ].filter(r=>r&&r.value) },
+  ];
+}
+
+function copySection(i,sid) {
+  const sections=buildParagonSections(), section=sections[i]; if(!section) return;
+  const text=section.rows.map(r=>`${r.label}: ${r.value}`).join('\n');
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('copy_'+sid);
+    btn.textContent='✓ Copied!'; btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},2000);
+    showToast(`${section.title} copied!`);
+  });
+}
+
+function copyAllSummary() {
+  const sections=buildParagonSections(); let all='';
+  sections.forEach(s=>{if(!s.rows.length)return;all+=`=== ${s.title} ===\n`;s.rows.forEach(r=>{all+=`${r.label}: ${r.value}\n`;});all+='\n';});
+  navigator.clipboard.writeText(all).then(()=>showToast('All data copied!'));
+}
+
+function generateShareLink() {
+  try {
+    const encoded = btoa(encodeURIComponent(JSON.stringify(formData)));
+    const url = window.location.origin + window.location.pathname + '?d=' + encoded;
+    if (url.length > 8000) {
+      // Too long for URL, use clipboard approach
+      navigator.clipboard.writeText(url).then(() => {
+        showToast('Link copied! Paste in browser on your computer');
+      });
+    } else {
+      navigator.clipboard.writeText(url).then(() => {
+        showToast('📋 Link copied! Open it on your computer');
+      });
+    }
+  } catch(e) { showToast('Error generating link'); }
+}
+
+function emailData() {
+  const sections = buildParagonSections();
+  let body = 'MLS LISTING DATA\n\n';
+  sections.forEach(s => {
+    if (!s.rows.length) return;
+    body += `=== ${s.title} ===\n`;
+    s.rows.forEach(r => { body += `${r.label}: ${r.value}\n`; });
+    body += '\n';
+  });
+  const addr = s('st_num') + ' ' + s('st_name');
+  const subject = encodeURIComponent('MLS Listing Data - ' + addr.trim());
+  const mailBody = encodeURIComponent(body);
+  window.location.href = `mailto:?subject=${subject}&body=${mailBody}`;
+  function s(k) { return formData[k] || ''; }
+}
+
+function clearAllData() {
+  if (confirm('Clear ALL form data and start fresh?')) {
+    Object.keys(formData).forEach(k=>delete formData[k]);
+    try{localStorage.removeItem('mls_walkthrough');}catch(e){}
+    // Re-apply defaults
+    Object.keys(DEFAULTS).forEach(k=>{formData[k]=DEFAULTS[k];});
+    saveToLocal();
+    currentStep=0; renderApp(); showToast('Form cleared!');
+  }
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+const stepRenderers = {
+  basics:renderBasics, listing:renderListing, financial:renderFinancial, curb:renderCurb,
+  grounds:renderGrounds, parking:renderParking, structure:renderStructure, interior:renderInterior,
+  rooms:renderRooms, primary:renderPrimary, kitchen:renderKitchen, specialty:renderSpecialty,
+  systems:renderSystems, hoa:renderHOA, docs:renderDocs, showing:renderShowing,
+  remarks:renderRemarks, summary:renderSummary,
+};
+
+function renderCurrentStep() {
+  const step=STEPS[currentStep];
+  document.getElementById('content').innerHTML = (stepRenderers[step.id]||(() => ''))();
+}
+function renderTabs() {
+  const el=document.getElementById('stepTabs');
+  el.innerHTML=STEPS.map((s,i)=>`<div class="step-tab ${i===currentStep?'active':''}" onclick="goToStep(${i})">${s.icon} ${s.label}</div>`).join('');
+  setTimeout(()=>{const a=el.querySelector('.active');if(a)a.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});},50);
+}
+function updateProgress() { document.getElementById('progressFill').style.width=Math.round(((currentStep+1)/STEPS.length)*100)+'%'; }
+function updateNav() {
+  const p=document.getElementById('prevBtn'),n=document.getElementById('nextBtn');
+  p.style.visibility=currentStep===0?'hidden':'visible';
+  if(currentStep===STEPS.length-1){n.style.display='none';}
+  else if(currentStep===STEPS.length-2){n.textContent='📊 Summary';n.className='nav-btn summary-btn';n.style.display='';}
+  else{n.textContent='Next →';n.className='nav-btn next';n.style.display='';}
+}
+function goToStep(i){currentStep=i;renderApp();window.scrollTo(0,0);}
+function nextStep(){if(currentStep<STEPS.length-1){currentStep++;renderApp();window.scrollTo(0,0);}}
+function prevStep(){if(currentStep>0){currentStep--;renderApp();window.scrollTo(0,0);}}
+function renderApp(){renderTabs();renderCurrentStep();updateProgress();updateNav();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+renderApp();
+</script>
+</body>
+</html>
