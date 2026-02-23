@@ -275,6 +275,19 @@ function migrateData() {
       if (JSON.stringify(formData[key]) !== JSON.stringify(val)) changed = true;
     }
   });
+  // Migrate old single price field to split fields
+  if (formData.price && !formData.price_thousands) {
+    const p = formData.price.replace(/[,$\s]/g,'');
+    if (p.length > 3) {
+      formData.price_thousands = p.slice(0, -3);
+      formData.price_hundreds = p.slice(-3);
+    } else {
+      formData.price_thousands = '';
+      formData.price_hundreds = p;
+    }
+    delete formData.price;
+    changed = true;
+  }
   if (changed) saveToLocal();
 }
 migrateData();
@@ -374,7 +387,7 @@ function renderBasics() {
     <div class="section-card"><h3>Property Type</h3>
       ${fieldGroup('Type', singleSelect('type',['Single Family','Condo','Townhouse','Mobile Home','Modular','Mixed Use']), true)}
       ${fieldGroup('Area', textInput('area','MLS Area Code'), true)}
-      ${fieldGroup('List Price', textInput('price','','text'), true)}
+      <div class="inline-fields">${fieldGroup('Price (thousands)', textInput('price_thousands','239','text'), true)}${fieldGroup(', (hundreds)', textInput('price_hundreds','000','text'), true)}</div>
     </div>
     <div class="section-card"><h3>Internet Display</h3>
       ${fieldGroup('IDX Include', singleSelect('idx',['Yes','No','Yes - without Address']), true)}
@@ -964,76 +977,91 @@ function buildParagonSections() {
     let v=yn; if(sz) v+=` | ${sz}`; if(lv) v+=` | ${lv}`;
     return {label:name,value:v};
   };
+  // Map type to Paragon format
+  const typeMap = {'Single Family':'SF - Single Family','Condo':'CD - Condo','Townhouse':'TH - Townhouse','Mobile Home':'MH - Mobile Home','Modular':'MD - Modular','Mixed Use':'MU - Mixed Use'};
+  const typeVal = typeMap[s('type')] || s('type');
   return [
-    { title:'1. GENERAL', rows:[
-      row('Type','type'),{label:'Address',value:[s('st_num'),s('st_name'),s('st_type')].filter(Boolean).join(' ')||''},
+    { title:'1. STANDARD', rows:[
+      typeVal?{label:'Type',value:typeVal}:null,
+      row('Area','area'),row('Price (thousands)','price_thousands'),row('Price (hundreds)','price_hundreds'),
+      {label:'Address #',value:s('st_num')},{label:'Street Name',value:s('st_name')},row('Street Type','st_type'),
       row('Address 2','address2'),row('Subdivision','subdivision'),row('City','city'),row('State','state'),
-      row('Zip','zip'),row('County','county'),row('In City','in_city'),row('Area','area'),row('Price','price'),
-      row('IDX','idx'),row('On Internet','on_internet'),row('VOW Include','vow_include'),
+      row('Zip','zip'),row('County','county'),row('In City','in_city'),
+      row('IDX Include','idx'),row('On Internet','on_internet'),row('VOW Include','vow_include'),
       row('VOW Address','vow_address'),row('VOW Comment','vow_comment'),row('VOW AVM','vow_avm'),
     ].filter(r=>r&&r.value) },
-    { title:'2. STANDARD', rows:[
-      row('Tax ID','tax_id'),row('Lot Dimensions','lot_dimensions'),row('Acres','acres'),row('Legal Lot','legal_lot'),
-      row('Year Built','year_built'),row('Builder','builder'),row('Model','model_name'),row('Zoning','zoning'),
-      row('Elem School','elem_school'),row('Mid School','mid_school'),row('High School','high_school'),
-      row('Auction','auction'),row('2nd Living Qtrs','second_living'),
-      row('List Agent','list_agent'),row('Agent License','agent_license'),row('List Office','list_office'),
-      row('Office License','office_license'),row('Team','list_team'),row('Co-List Agent','colist_agent'),
-      row('Co-List Office','colist_office'),row('Listing Type','listing_type'),row('List Date','list_date'),
-      row('Exp Date','exp_date'),row('Virtual Tour','virtual_tour'),row('NB Virtual Tour','nb_virtual_tour'),
-      row('NB Aerial Tour','nb_aerial_tour'),row('Disclosure Req','disclosure_req'),row('Lead Paint Req','lead_paint_req'),
-      row('Lake Property','lake_prop'),row('Lake Name','lake_name'),row('Equestrian','equestrian_prop'),
+    { title:'2. KEYWORDS', rows:[
+      row('# of Stories','stories'),row('Approx Age','age_kw'),row('Parking Type','parking_type_kw'),
+      row('Garage Total Capacity','garage_cap_kw'),row('Total SQFT Range','sqft_kw'),row('Lot Size/Acreage','lot_size_kw'),
+      row('Heated Sq Ft','sqft_heated'),row('Below Grade Sq Ft','sqft_below'),
+      row('Other Rooms Sq Ft','sqft_other'),row('Unfinished Sq Ft','sqft_unfinished'),
     ].filter(r=>r&&r.value) },
-    { title:'3. FINANCIAL', rows:[
-      row('Taxes','taxes'),row('Tax Year','tax_year'),row('Tax Rate','tax_rate'),
-      row('Short Sale','short_sale'),row('Foreclosure','foreclosure'),row('HOA','hoa'),
-      row('HOA Mandatory','hoa_mandatory'),row('HOA Term','hoa_term'),row('HOA Fee','hoa_fee'),
-      row('HOA Contact','hoa_contact'),row('Assessment','assessment'),row('Assessment Fee','assessment_fee'),
-      row('Homestead','homestead'),row('Electric','electric_co'),row('Gas','gas_co'),row('Water Co','water_co'),
+    { title:'3. GENERAL', rows:[
+      row('Res. Property Disc. Req?','disclosure_req'),row('Lead Based Paint Disc Req?','lead_paint_req'),
+      row('Tax ID Number','tax_id'),row('Legal Lot Number','legal_lot'),
+      row('Approx Lot Dimensions','lot_dimensions'),row('Approx # of Acres','acres'),
+      row('Lake Property','lake_prop'),row('Lake','lake_name'),row('Location','equestrian_location'),
+      row('Equestrian Property','equestrian_prop'),
+      row('Approx Year Built','year_built'),row('Builders Name','builder'),
+      row('Model Name','model_name'),row('Zoning','zoning'),
+      row('Elementary School','elem_school'),row('Middle School','mid_school'),row('High School','high_school'),
+      row('Agent','list_agent'),row('Agent License ID','agent_license'),
+      row('Listing Office 1','list_office'),row('Brokerage License ID','office_license'),
+      row('Listing Agent 2','colist_agent'),row('Listing Office 2','colist_office'),row('Team','list_team'),
+      row('Listing Type','listing_type'),row('Listing Date','list_date'),row('Expiration Date','exp_date'),
+      row('Auction (Y/N)','auction'),row('Second Living Quarters','second_living'),
+      row('Virtual Tour','virtual_tour'),row('Non-Branded Virtual Tour','nb_virtual_tour'),
+      row('Non-Branded Aerial Tour','nb_aerial_tour'),
     ].filter(r=>r&&r.value) },
-    { title:'4. KEYWORDS', rows:[
-      row('Stories','stories'),row('Age','age_kw'),row('Parking Type','parking_type_kw'),
-      row('Garage Cap','garage_cap_kw'),row('Sq Ft Range','sqft_kw'),row('Lot Size','lot_size_kw'),
-    ].filter(r=>r&&r.value) },
-    { title:'5. SQ FOOTAGE', rows:[
-      row('Heated Sq Ft','sqft_heated'),row('Below Grade','sqft_below'),
-      row('Other Rooms','sqft_other'),row('Unfinished','sqft_unfinished'),
-    ].filter(r=>r&&r.value) },
-    { title:'6. ROOM INFO', rows:[
-      row('# Bedrooms','num_bedrooms'),row('# BRs Main','num_br_main'),row('# Full Baths','num_fullbaths'),
-      row('# FBs Main','num_fb_main'),row('# Half Baths','num_halfbaths'),row('# BRs Below','num_br_below'),
-      row('# Rooms Below','num_rooms_below'),row('# Fireplaces','num_fireplaces'),
-      roomRow('Living','living'),roomRow('Dining','dining'),roomRow('Breakfast','breakfast'),
+    { title:'4. ROOM INFO', rows:[
+      roomRow('Living Room','living'),roomRow('Dining Room','dining'),roomRow('Breakfast Room','breakfast'),
       roomRow('Kitchen','kitchen'),roomRow('Great Room','great'),roomRow('Den','den'),
-      roomRow('Bonus/Rec','bonus'),roomRow('Sun Room','sunroom'),roomRow('Primary BR','primary_br'),
-      roomRow('BR #2','br2'),roomRow('BR #3','br3'),roomRow('BR #4','br4'),roomRow('BR #5','br5'),
-      roomRow('Scr Porch','scr_porch'),roomRow('Deck','deck'),roomRow('Patio','patio'),
+      roomRow('Bonus/Rec Room','bonus'),roomRow('Sun Room','sunroom'),
+      roomRow('Primary Bedroom','primary_br'),roomRow('Bedroom #2','br2'),roomRow('Bedroom #3','br3'),
+      roomRow('Bedroom #4','br4'),roomRow('Bedroom #5','br5'),
+      roomRow('Screened Porch','scr_porch'),roomRow('Deck','deck'),roomRow('Patio','patio'),
       roomRow('Laundry','laundry'),roomRow('Loft','loft'),
+      row('# of Bedrooms','num_bedrooms'),row('# of Full Baths','num_fullbaths'),
+      row('# of Half Baths','num_halfbaths'),row('# of Rooms Below Grade','num_rooms_below'),
+      row('# of Bedrooms Main Level','num_br_main'),row('# Full Baths on Main Lvl','num_fb_main'),
+      row('# of BRs Below Grade','num_br_below'),row('# of Fireplaces','num_fireplaces'),
     ].filter(r=>r&&r.value) },
-    { title:'7. FEATURES', rows:[
-      row('Style','style'),row('Exterior Finish','exterior_finish'),row('Lot Desc','lot_desc'),
-      row('Lake Features','lake_features'),row('Equestrian Features','equestrian_features'),
-      row('Foundation','foundation'),row('Basement','basement'),row('Exterior Features','exterior_features'),
-      row('Roof','roof'),row('Parking/Garage','parking_features'),row('Driveway','driveway'),
-      row('Interior Features','interior_features'),row('2nd Living Qtrs','second_living_features'),
-      row('Primary BR','primary_features'),row('Specialty Rooms','specialty_rooms'),
-      row('Laundry','laundry_features'),row('Appliances','appliances'),row('Fireplace','fireplace'),
-      row('Heating','heating'),row('Cooling','cooling'),row('Floors','floors'),
-      row('Water','water'),row('Sewer','sewer'),row('Water Heater','water_heater'),
-      row('Storage','storage'),row('Docs on File','docs_on_file'),row('Docs w/ Offer','docs_with_offer'),
-      row('Possession','possession'),row('Garbage','garbage'),row('HOA Includes','hoa_includes'),
-      row('Community','community'),row('Showing','showing'),row('Addl Fees','additional_fees'),
-      row('Green Cert','green_cert'),row('Disability','disability'),row('Special Finance','special_finances'),
-      row('Mobile Home','mobile_home'),
+    { title:'5. FINANCIAL', rows:[
+      row('Total Taxes','taxes'),row('Tax Year','tax_year'),row('Tax Rate','tax_rate'),
+      row('Homestead','homestead'),row('Short Sale (Y/N)','short_sale'),row('Foreclosure (Y/N)','foreclosure'),
+      row('HOA (Y/N)','hoa'),row('HOA/Regime Fee Mandatory','hoa_mandatory'),
+      row('HOA Term','hoa_term'),row('HOA/Regime Fee $','hoa_fee'),row('HOA Contact Name/#','hoa_contact'),
+      row('Special Assessment (Y/N)','assessment'),row('Assessment Mandatory','assessment_mandatory'),
+      row('Assessment Term','assessment_term'),row('Assessment Fee $','assessment_fee'),
+      row('Assessment Comments','assessment_comments'),
+      row('Electric Co.','electric_co'),row('Gas Co.','gas_co'),row('Water Co.','water_co'),
     ].filter(r=>r&&r.value) },
-    { title:'8. SHOWING & OFFICE', rows:[
-      row('Showing Contact','showing_contact'),row('Contact #','showing_phone'),row('Appt URL','showing_url'),
+    { title:'6. FEATURES', rows:[
+      row('AA-Style','style'),row('BA-Exterior Finish','exterior_finish'),row('CA-Lot Description','lot_desc'),
+      row('CB-Lake Prop Features','lake_features'),row('CC-Equestrian Prop Features','equestrian_features'),
+      row('DA-Foundation','foundation'),row('EA-Basement','basement'),row('FA-Exterior Features','exterior_features'),
+      row('GA-Roof','roof'),row('HA-Parking/Garage','parking_features'),row('HB-Driveway','driveway'),
+      row('IA-Interior Features','interior_features'),row('IB-Second Living Quarters','second_living_features'),
+      row('JA-Primary Bedroom Features','primary_features'),row('KA-Specialty Room','specialty_rooms'),
+      row('KB-Laundry','laundry_features'),row('LA-Appliances','appliances'),row('MA-Fireplace','fireplace'),
+      row('NA-Heating System','heating'),row('OA-Cooling System','cooling'),row('PA-Floors','floors'),
+      row('QA-Water','water'),row('RA-Sewer','sewer'),row('SA-Water Heater','water_heater'),
+      row('TA-Storage Space','storage'),row('UA-Docs on File','docs_on_file'),
+      row('VA-Documents with Offer','docs_with_offer'),row('XA-Special Finances','special_finances'),
+      row('XB-Mobile Home','mobile_home'),row('XC-Possession','possession'),row('YA-Garbage Pickup','garbage'),
+      row('ZB-HOA Fee Includes','hoa_includes'),row('ZC-Community Amenities','community'),
+      row('ZD-Showing','showing'),row('ZE-Additional Fees','additional_fees'),
+      row('ZF-Green Certification','green_cert'),row('ZG-Disability Features','disability'),
+    ].filter(r=>r&&r.value) },
+    { title:'7. REMARKS', rows:[
+      row('Directions','directions'),row('Remarks','remarks_mls'),
+      row('Syndication Remarks','remarks_syndication'),row('Member Remarks','remarks_member'),
+    ].filter(r=>r&&r.value) },
+    { title:'8. OFFICE INFO', rows:[
+      row('Owner Name','owner_name'),row('Owner Phone','owner_phone'),
+      row('Detailed Showing Inst','showing_detail'),row('Showing Contact','showing_contact'),
+      row('Contact # for Appts','showing_phone'),row('Online Appt URL','showing_url'),
       row('Supra Lockbox','supra_lockbox'),row('Lockbox S/N','lockbox_sn'),row('CBS Code','lockbox_cbs'),
-      row('Owner','owner_name'),row('Owner Phone','owner_phone'),row('Detail','showing_detail'),
-    ].filter(r=>r&&r.value) },
-    { title:'9. REMARKS', rows:[
-      row('Directions','directions'),row('MLS Remarks','remarks_mls'),
-      row('Syndication','remarks_syndication'),row('Member Remarks','remarks_member'),
     ].filter(r=>r&&r.value) },
   ];
 }
